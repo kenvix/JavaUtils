@@ -1,12 +1,12 @@
 //--------------------------------------------------
-// Class StringTool
+// Class StringTools
 //--------------------------------------------------
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
 package com.kenvix.utils.tools;
 
-public class StringTool {
+public class StringTools {
     /**
      * 通配符算法。 可以匹配"*"和"?"
      * 如a*b?d可以匹配aAAAbcd

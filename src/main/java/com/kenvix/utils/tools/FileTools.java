@@ -1,5 +1,5 @@
 //--------------------------------------------------
-// Class FileTool
+// Class FileTools
 //--------------------------------------------------
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 
-public class FileTool {
+public class FileTools {
 
     /**
      * 获取单个文件的MD5值
@@ -29,7 +29,7 @@ public class FileTool {
         }
         MessageDigest   digest   = null;
         FileInputStream in       = null;
-        byte            buffer[] = new byte[1024];
+        byte[]          buffer = new byte[1024];
         int             len;
         try {
             digest = MessageDigest.getInstance("MD5");
