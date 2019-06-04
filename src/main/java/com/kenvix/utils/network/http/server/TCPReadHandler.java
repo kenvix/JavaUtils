@@ -6,6 +6,9 @@
 
 package com.kenvix.utils.network.http.server;
 
+import com.kenvix.utils.log.Logging;
+import com.kenvix.utils.log.ResourcedLogging;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -13,7 +16,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 
-class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel> {
+class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, ResourcedLogging {
     private ByteBuffer buffer;
     private final TCPAcceptHandler acceptHandler;
 
@@ -33,24 +36,35 @@ class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketCha
             CharBuffer charBuffer = Charset.forName("utf-8").decode(buffer);
             System.out.println(charBuffer.toString());
 
-            String outDataBuilder = "HTTP/1.1 200 OK" +
-                    "\r\nContent-type: text/html\r\n\r\n" +
-                    "<h1>fuck♂you.<h2><pre> \r\nOriginal Request:\r\n" +
-                    charBuffer + "</pre>";
+            String outDataBuilder = acceptHandler.getCallback().onReadComplete(acceptHandler, result, attachment);
 
-            ByteBuffer outBuffer = ByteBuffer.wrap(outDataBuilder.getBytes());
-            attachment.write(outBuffer);
+            if (outDataBuilder != null) {
+                ByteBuffer outBuffer = ByteBuffer.wrap(outDataBuilder.getBytes());
+                attachment.write(outBuffer);
+            }
+
             try {
                 attachment.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                getLogger().info("Connection close failed (read stage): " + e.getMessage());
             }
         }
     }
 
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-        System.err.println("===Read Failed===" + exc.getMessage());
+        getLogger().warning("Read Failed" + exc.getMessage());
+        acceptHandler.getCallback().onReadFailed(acceptHandler, exc, attachment);
+    }
+
+    @Override
+    public String getLogTag() {
+        return acceptHandler.getLogTag();
+    }
+
+    @Override
+    public String getLogResourceBundleName() {
+        return String.valueOf(acceptHandler.hashCode());
     }
 }
 

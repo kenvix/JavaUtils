@@ -6,12 +6,16 @@
 
 package com.kenvix.utils.network.http.server;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
-public interface ServerEvent<T, U> {
-    void onReadComplete(T instance, Integer result, AsynchronousSocketChannel attachment);
-    void onReadFailed(T instance, Throwable exc, AsynchronousSocketChannel attachment);
+public interface ServerEvent<T extends CompletionHandler<AsynchronousSocketChannel, U>, U> {
+    @Nullable
+    String onReadComplete(T acceptHandler, Integer result, AsynchronousSocketChannel socketChannel);
+    void onReadFailed(T acceptHandler, Throwable exc, AsynchronousSocketChannel socketChannel);
 
-    void onAcceptComplete(T instance, AsynchronousSocketChannel result, U attachment);
-    void onAcceptFailed(T instance, Throwable result, U attachment);
+    boolean onAcceptComplete(T acceptHandler, AsynchronousSocketChannel socketChannel, U baseServer);
+    void onAcceptFailed(T acceptHandler, Throwable throwable, U baseServer);
 }
