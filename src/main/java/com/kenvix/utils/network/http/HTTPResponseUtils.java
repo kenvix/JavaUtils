@@ -6,15 +6,10 @@ package com.kenvix.utils.network.http;
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
-import com.kenvix.utils.network.URL;
-import org.omg.IOP.Encoding;
+import com.kenvix.utils.network.URI;
 
-import javax.naming.OperationNotSupportedException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class HTTPResponseUtils {
@@ -35,10 +30,10 @@ public class HTTPResponseUtils {
         return new HTTPResponse(code);
     }
 
-    public URL parseOriginalRequestIntoURL() throws IllegalArgumentException, IllegalStateException {
+    public URI parseOriginalRequestIntoURI() throws IllegalArgumentException, IllegalStateException {
         Scanner scanner = new Scanner(originalRequestText);
         scanner.next();
         String data = scanner.next();
-        return new URL(data);
+        return URI.getURIWithoutScheme(data);
     }
 }

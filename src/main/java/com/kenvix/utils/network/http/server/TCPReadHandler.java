@@ -27,9 +27,9 @@ class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketCha
     @Override
     public void completed(Integer result, AsynchronousSocketChannel attachment) {
         if (result < 0) {
-            System.err.println("Connection closed by client.");
+            getLogger().info("Connection closed by client.");
         } else if (result == 0) {
-            System.out.println("Empty data");
+            getLogger().info("Empty data");
         } else {
             buffer.flip();
             String outDataBuilder = acceptHandler.getCallback().onReadComplete(acceptHandler, buffer, result, attachment);

@@ -16,7 +16,7 @@ public class HTTPResponse {
         this.code = code;
 
         String responseCode = HTTPUtils.getHTTPCodeDescription(code);
-        buffer = new StringBuffer("HTTP/1.1 ").append(responseCode).append("\r\n");
+        buffer = new StringBuffer(String.format("HTTP/1.1 %d %s\r\n", code, responseCode));
     }
 
     public HTTPResponse constructHeader(String data) {
@@ -36,7 +36,7 @@ public class HTTPResponse {
 
     @SuppressWarnings("unchecked")
     public HTTPResponse constructData(String data) {
-        constructHeader(new Pair("Content-Length", data.length()));
+        constructHeader("Content-Length", String.valueOf(data.length()));
         buffer.append("\r\n").append(data);
         return this;
     }

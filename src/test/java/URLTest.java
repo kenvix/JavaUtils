@@ -4,7 +4,7 @@
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
-import com.kenvix.utils.network.URL;
+import com.kenvix.utils.network.URI;
 
 import java.net.MalformedURLException;
 
@@ -20,7 +20,7 @@ public class URLTest {
         String rx = null;
         System.out.println(rx == null);
 
-        URL url = new URL("https://asdasd.com/paghe?par=x&asdasd=w");
+        URI url = URI.getURI("https://asdasd.com/paghe?par=x&asdasd=w");
         System.err.println(url.getParams());
     }
 }

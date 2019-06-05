@@ -1,6 +1,6 @@
 package com.kenvix.utils.tools;
 
-public class CommonTools {
+public abstract class CommonTools {
 
     /**
      * Sleep

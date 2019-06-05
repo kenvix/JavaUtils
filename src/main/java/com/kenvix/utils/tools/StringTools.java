@@ -6,7 +6,7 @@
 
 package com.kenvix.utils.tools;
 
-public class StringTools {
+public abstract class StringTools {
     /**
      * 通配符算法。 可以匹配"*"和"?"
      * 如a*b?d可以匹配aAAAbcd

@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 
-public class FileTools {
+public abstract class FileTools {
 
     /**
      * 获取单个文件的MD5值

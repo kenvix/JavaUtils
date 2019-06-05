@@ -5,7 +5,7 @@ import com.kenvix.utils.annotation.Description;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 
-public class ReflectTools {
+public abstract class ReflectTools {
     public static String getMethodDescription(Method method) {
         if(!method.isAnnotationPresent(Description.class))
             throw new NoSuchElementException("No Description found.");

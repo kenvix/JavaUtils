@@ -16,6 +16,11 @@ dependencies {
 }
 
 jar {
+    from {
+        //添加依懒到打包文件
+        //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtime.collect{zipTree(it)}
+    }
     manifest {
 
     }
