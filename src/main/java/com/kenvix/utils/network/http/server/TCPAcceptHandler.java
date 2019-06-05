@@ -7,7 +7,6 @@
 package com.kenvix.utils.network.http.server;
 
 import com.kenvix.utils.log.Logging;
-import com.kenvix.utils.log.ResourcedLogging;
 
 import java.io.IOException;
 import java.net.StandardSocketOptions;
@@ -16,12 +15,12 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
-class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, SimpleAsyncHTTPServer>, ResourcedLogging {
-    private ServerEvent<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
+class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, SimpleAsyncHTTPServer>, Logging {
+    private ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
     private int bufferSize = 10000000;
     private int timeout = 5000;
 
-    public ServerEvent<TCPAcceptHandler, SimpleAsyncHTTPServer> getCallback() {
+    public ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> getCallback() {
         return callback;
     }
 
@@ -35,7 +34,7 @@ class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, S
         return this;
     }
 
-    public TCPAcceptHandler(ServerEvent<TCPAcceptHandler, SimpleAsyncHTTPServer> event) {
+    public TCPAcceptHandler(ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> event) {
         this.callback = event;
     }
 
@@ -79,10 +78,5 @@ class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, S
     @Override
     public String getLogTag() {
         return "SimpleHTTPServer";
-    }
-
-    @Override
-    public String getLogResourceBundleName() {
-        return String.valueOf(hashCode());
     }
 }

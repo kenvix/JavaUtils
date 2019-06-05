@@ -7,7 +7,6 @@
 package com.kenvix.utils.network.http.server;
 
 import com.kenvix.utils.log.Logging;
-import com.kenvix.utils.log.ResourcedLogging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,7 +15,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 
-class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, ResourcedLogging {
+class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, Logging {
     private ByteBuffer buffer;
     private final TCPAcceptHandler acceptHandler;
 
@@ -33,10 +32,7 @@ class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketCha
             System.out.println("Empty data");
         } else {
             buffer.flip();
-            CharBuffer charBuffer = Charset.forName("utf-8").decode(buffer);
-            System.out.println(charBuffer.toString());
-
-            String outDataBuilder = acceptHandler.getCallback().onReadComplete(acceptHandler, result, attachment);
+            String outDataBuilder = acceptHandler.getCallback().onReadComplete(acceptHandler, buffer, result, attachment);
 
             if (outDataBuilder != null) {
                 ByteBuffer outBuffer = ByteBuffer.wrap(outDataBuilder.getBytes());
@@ -60,11 +56,6 @@ class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketCha
     @Override
     public String getLogTag() {
         return acceptHandler.getLogTag();
-    }
-
-    @Override
-    public String getLogResourceBundleName() {
-        return String.valueOf(acceptHandler.hashCode());
     }
 }
 

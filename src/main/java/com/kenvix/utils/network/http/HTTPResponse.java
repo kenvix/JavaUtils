@@ -24,8 +24,13 @@ public class HTTPResponse {
         return this;
     }
 
-    public HTTPResponse constructHeader(Pair data) {
-        buffer.append(String.format("%s: %s", data.first, data.second)).append("\r\n");
+    public HTTPResponse constructHeader(String key, String data) {
+        buffer.append(String.format("%s: %s", key, data)).append("\r\n");
+        return this;
+    }
+
+    public HTTPResponse constructHeader(Pair<String, String> data) {
+        constructHeader(data.first, data.second);
         return this;
     }
 

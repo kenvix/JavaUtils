@@ -14,23 +14,19 @@ import java.util.logging.Logger;
 public interface Logging {
     String getLogTag();
 
-    static void useAsDefaultLogger() {
-
-    }
-
     @NotNull
     static Logger getLoggerGlobal() {
-        return Logger.getGlobal();
+        return LogSettings.getGlobal();
     }
 
     @NotNull
     static Logger getLogger(@NotNull String tag) {
-        return Logger.getLogger(tag);
+        return LogSettings.getLogger(tag);
     }
 
     @NotNull
     static Logger getLogger(@NotNull Logging object) {
-        return Logger.getLogger(object.getLogTag());
+        return LogSettings.getLogger(object.getLogTag());
     }
 
     @NotNull

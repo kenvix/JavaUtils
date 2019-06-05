@@ -5,7 +5,6 @@
 
 package com.kenvix.utils.network.http.server;
 
-import com.kenvix.utils.annotation.LogTag;
 import com.kenvix.utils.log.Logging;
 
 import java.io.IOException;
@@ -16,11 +15,11 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 
 public class SimpleAsyncHTTPServer implements Logging {
     private AsynchronousServerSocketChannel channel;
-    private ServerEvent<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
+    private ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
     private int bufferSize = 10000000;
     private int timeout = 5000;
 
-    public SimpleAsyncHTTPServer(ServerEvent<TCPAcceptHandler, SimpleAsyncHTTPServer> callback) {
+    public SimpleAsyncHTTPServer(ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> callback) {
         this.callback = callback;
     }
 

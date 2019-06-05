@@ -51,7 +51,7 @@ public class URL {
             if (equalPosition == -1)
                 result.put(param, "");
             else
-                result.put(param.substring(0, equalPosition), param.substring(equalPosition));
+                result.put(param.substring(0, equalPosition).toLowerCase(), param.substring(equalPosition));
         }
 
         return Collections.unmodifiableMap(result);

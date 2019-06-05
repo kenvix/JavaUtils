@@ -11,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
 public class CallerClass extends SecurityManager {
     private static final CallerClass INSTANCE = new CallerClass();
 
+    private CallerClass() {
+    }
+
     @NotNull
     public static Class[] get() {
         return INSTANCE.getClassContext();
