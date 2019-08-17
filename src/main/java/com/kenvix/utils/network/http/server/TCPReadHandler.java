@@ -15,11 +15,11 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 
-class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, Logging {
+public class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, Logging {
     private ByteBuffer buffer;
     private final TCPAcceptHandler acceptHandler;
 
-    public TCPReadHandler(ByteBuffer buffer, TCPAcceptHandler acceptHandler) {
+    TCPReadHandler(ByteBuffer buffer, TCPAcceptHandler acceptHandler) {
         this.buffer = buffer;
         this.acceptHandler = acceptHandler;
     }

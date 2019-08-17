@@ -50,7 +50,7 @@ public abstract class FileTools {
      * Get relative path of a file
      *
      * @param base Base path
-     * @param path file path
+0.     * @param path file path
      * @return result
      */
     public static String getRelativePath(String base, String path) {

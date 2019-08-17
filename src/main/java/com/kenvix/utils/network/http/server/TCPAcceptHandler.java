@@ -15,17 +15,19 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
-class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, SimpleAsyncHTTPServer>, Logging {
+public class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, SimpleAsyncHTTPServer>, Logging {
     private ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
-    private int bufferSize = 10000000;
+    private int readBufferSize = 10000000;
     private int timeout = 5000;
+    private int socketReceiveBufferSize = 4096;
+    private int socketSendBufferSize = 4096;
 
     public ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> getCallback() {
         return callback;
     }
 
-    public TCPAcceptHandler setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
+    public TCPAcceptHandler setReadBufferSize(int readBufferSize) {
+        this.readBufferSize = readBufferSize;
         return this;
     }
 
@@ -46,17 +48,18 @@ class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, S
     public void completed(AsynchronousSocketChannel result, SimpleAsyncHTTPServer attachment) {
         acceptMore(attachment);
         try {
-            getLogger().fine("Accepted: " + result.getRemoteAddress());
+            getLogger().finer("Accepted: " + result.getRemoteAddress());
 
-            result.setOption(StandardSocketOptions.SO_RCVBUF, 4096);
-            result.setOption(StandardSocketOptions.SO_SNDBUF, 4096);
+            result.setOption(StandardSocketOptions.SO_RCVBUF, socketReceiveBufferSize);
+            result.setOption(StandardSocketOptions.SO_SNDBUF, socketSendBufferSize);
 
             if(callback.onAcceptComplete(this, result, attachment)) {
-                ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+                ByteBuffer buffer = ByteBuffer.allocate(readBufferSize);
                 result.read(buffer, timeout, TimeUnit.MINUTES, result, new TCPReadHandler(buffer, this));
             } else {
                 try {
                     result.close();
+                    getLogger().fine("Successfully reset connection");
                 } catch (IOException e) {
                     getLogger().info("Connection positive reset failed (accept stage): " + e.getMessage());
                 }
@@ -73,6 +76,24 @@ class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, S
 
         if (callback != null)
             callback.onAcceptFailed(this, exc, attachment);
+    }
+
+    public int getSocketReceiveBufferSize() {
+        return socketReceiveBufferSize;
+    }
+
+    public TCPAcceptHandler setSocketReceiveBufferSize(int socketReceiveBufferSize) {
+        this.socketReceiveBufferSize = socketReceiveBufferSize;
+        return this;
+    }
+
+    public int getSocketSendBufferSize() {
+        return socketSendBufferSize;
+    }
+
+    public TCPAcceptHandler setSocketSendBufferSize(int socketSendBufferSize) {
+        this.socketSendBufferSize = socketSendBufferSize;
+        return this;
     }
 
     @Override

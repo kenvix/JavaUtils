@@ -35,7 +35,7 @@ public class SimpleAsyncHTTPServer implements Logging {
 
     private void listen(InetSocketAddress address) throws IOException {
         channel = AsynchronousServerSocketChannel.open().bind(address);
-        channel.accept(this, new TCPAcceptHandler(callback).setBufferSize(bufferSize).setTimeout(timeout));
+        channel.accept(this, new TCPAcceptHandler(callback).setReadBufferSize(bufferSize).setTimeout(timeout));
     }
 
     public AsynchronousServerSocketChannel getChannel() {

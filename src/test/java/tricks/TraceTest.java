@@ -1,4 +1,4 @@
-// Class TraceTest
+package tricks;// Class tricks.TraceTest
 //--------------------------------------------------
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------

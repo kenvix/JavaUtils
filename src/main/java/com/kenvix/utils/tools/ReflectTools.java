@@ -26,4 +26,6 @@ public abstract class ReflectTools {
     public static StackTraceElement getInvoker() {
         return new Throwable().getStackTrace()[1];
     }
+
+
 }
