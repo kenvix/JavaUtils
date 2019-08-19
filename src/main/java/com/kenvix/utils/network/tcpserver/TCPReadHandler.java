@@ -24,29 +24,31 @@ public final class TCPReadHandler implements CompletionHandler<Integer, Asynchro
     }
 
     @Override
-    public void completed(Integer result, AsynchronousSocketChannel attachment) {
+    public void completed(Integer result, AsynchronousSocketChannel socketChannel) {
         if (result < 0) {
-            getLogger().info("Connection closed by client.");
+            getLogger().fine("Connection closed by client.");
         } else if (result == 0) {
-            getLogger().info("Empty data");
+            getLogger().fine("Empty data");
         } else {
             buffer.flip();
-            String outDataBuilder = acceptHandler.getCallback().onReadCompleted(this, buffer, result, attachment);
+            String outDataBuilder = acceptHandler.getCallback().onReadCompleted(this, buffer, result, socketChannel);
             ByteBuffer outBuffer = null;
 
             if (outDataBuilder != null) {
                 byte[] bytes = outDataBuilder.getBytes();
                 outBuffer = ByteBuffer.wrap(bytes);
-                attachment.write(outBuffer, acceptHandler.getWriteTimeout(), TimeUnit.MILLISECONDS,
-                        attachment, new TCPWriteHandler(this));
+                socketChannel.write(outBuffer, acceptHandler.getWriteTimeout(), TimeUnit.SECONDS,
+                        socketChannel, new TCPWriteHandler(this));
             }
+
+            acceptHandler.readMore(socketChannel);
         }
     }
 
     @Override
-    public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-        getLogger().warning("Read Failed" + exc.getMessage());
-        acceptHandler.getCallback().onReadFailed(this, exc, attachment);
+    public void failed(Throwable exc, AsynchronousSocketChannel socketChannel) {
+        getLogger().warning("Read Failed: " + exc.toString());
+        acceptHandler.getCallback().onReadFailed(this, exc, socketChannel);
     }
 
     @Override

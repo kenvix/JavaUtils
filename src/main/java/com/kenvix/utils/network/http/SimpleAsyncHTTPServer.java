@@ -16,8 +16,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
 
-public class SimpleAsyncHTTPServerSimple extends SimpleAbstractServer implements Logging {
-    public SimpleAsyncHTTPServerSimple(ServerEventCallback<SimpleAbstractServer> callback) {
+public class SimpleAsyncHTTPServer extends SimpleAbstractServer implements Logging {
+    public SimpleAsyncHTTPServer(ServerEventCallback<SimpleAbstractServer> callback) {
         super(callback);
     }
 

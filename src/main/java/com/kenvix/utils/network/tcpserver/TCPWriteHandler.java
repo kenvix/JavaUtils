@@ -25,7 +25,7 @@ public final class TCPWriteHandler implements CompletionHandler<Integer, Asynchr
 
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-        getLogger().warning("Write Failed" + exc.getMessage());
+        getLogger().warning("Write Failed: " + exc.getMessage());
         readHandler.getAcceptHandler().getCallback().onSendFailed(this, exc, attachment);
     }
 

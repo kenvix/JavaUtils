@@ -60,15 +60,18 @@ public final class LogSettings {
             return simplifiedSourceClassNameMap.get(sourceClassName);
 
         StringBuilder builder = new StringBuilder(sourceClassName);
-        int beginPosition = 0;
-        int nextPosition = 0;
 
-        do {
-            nextPosition = builder.indexOf(".", beginPosition + 1);
-            int deletedLength = nextPosition - beginPosition - 1;
-            builder.delete(beginPosition + 1, nextPosition);
-            beginPosition = nextPosition - deletedLength + 1;
-        } while ((nextPosition = builder.indexOf(".", beginPosition + 1)) >= 0);
+        if (sourceClassName.contains(".")) {
+            int beginPosition = 0;
+            int nextPosition = 0;
+
+            do {
+                nextPosition = builder.indexOf(".", beginPosition + 1);
+                int deletedLength = nextPosition - beginPosition - 1;
+                builder.delete(beginPosition + 1, nextPosition);
+                beginPosition = nextPosition - deletedLength + 1;
+            } while ((nextPosition = builder.indexOf(".", beginPosition + 1)) >= 0);
+        }
 
         String result = builder.toString();
         simplifiedSourceClassNameMap.put(sourceClassName, result);

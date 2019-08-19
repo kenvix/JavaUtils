@@ -20,7 +20,7 @@ public interface ServerEventCallback<@Nullable U> extends Logging {
      *
      * @param acceptHandler Instance of {@link TCPAcceptHandler}
      * @param socketChannel Connection
-     * @param baseServer
+     * @param baseServer {@link U}
      * @return Should accept more. If false, server will exit
      */
     boolean onAcceptCompleted(@NotNull TCPAcceptHandler acceptHandler, @NotNull AsynchronousSocketChannel socketChannel, @Nullable U baseServer);
@@ -31,7 +31,7 @@ public interface ServerEventCallback<@Nullable U> extends Logging {
      *
      * @param readHandler Instance of {@link TCPReadHandler}
      * @param data Received data
-     * @param readResultCode
+     * @param readResultCode Result code. If > 0, it represents size if code > 0, else error code
      * @param socketChannel Connection
      * @return Data to send. If null, nothing will be sent
      */
@@ -44,9 +44,9 @@ public interface ServerEventCallback<@Nullable U> extends Logging {
      * Will be invoked if {@link #onReadCompleted(TCPReadHandler, ByteBuffer, Integer, AsynchronousSocketChannel)} return true
      *
      * @param sendHandler Instance of {@link TCPWriteHandler}
-     * @param sendResultCode
+     * @param sentResult Result code. If > 0, it represents size if code > 0, else error code
      * @param socketChannel Connection
      */
-    void onSendCompleted(@NotNull TCPWriteHandler sendHandler, Integer sendResultCode, @NotNull AsynchronousSocketChannel socketChannel);
+    void onSendCompleted(@NotNull TCPWriteHandler sendHandler, Integer sentResult, @NotNull AsynchronousSocketChannel socketChannel);
     void onSendFailed(@NotNull TCPWriteHandler sendHandler, @NotNull Throwable exc, @NotNull AsynchronousSocketChannel socketChannel);
 }

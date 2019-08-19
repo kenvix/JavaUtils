@@ -6,7 +6,7 @@
 
 import com.kenvix.utils.network.http.HTTPResponseUtils;
 import com.kenvix.utils.network.tcpserver.*;
-import com.kenvix.utils.network.http.SimpleAsyncHTTPServerSimple;
+import com.kenvix.utils.network.http.SimpleAsyncHTTPServer;
 import com.kenvix.utils.tools.BlockingTools;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 public class SimpleHttpServer {
     public static void main(String[] args) {
-        SimpleAsyncHTTPServerSimple server = new SimpleAsyncHTTPServerSimple(new ServerEventCallback<SimpleAbstractServer>() {
+        SimpleAsyncHTTPServer server = new SimpleAsyncHTTPServer(new ServerEventCallback<SimpleAbstractServer>() {
             @Override
             public @Nullable String onReadCompleted(@NotNull TCPReadHandler readHandler, @NotNull ByteBuffer data, Integer readResultCode, @NotNull AsynchronousSocketChannel socketChannel) {
                 HTTPResponseUtils responseUtils = new HTTPResponseUtils(data);
@@ -30,7 +30,7 @@ public class SimpleHttpServer {
             }
 
             @Override
-            public void onSendCompleted(@NotNull TCPWriteHandler sendHandler, Integer readResultCode, @NotNull AsynchronousSocketChannel socketChannel) {
+            public void onSendCompleted(@NotNull TCPWriteHandler sendHandler, Integer sentResult, @NotNull AsynchronousSocketChannel socketChannel) {
                 try {
                     socketChannel.close();
                 } catch (IOException e) {
@@ -45,7 +45,7 @@ public class SimpleHttpServer {
 
             @Override
             public boolean onAcceptCompleted(@NotNull TCPAcceptHandler acceptHandler, @NotNull AsynchronousSocketChannel socketChannel, @Nullable SimpleAbstractServer baseServer) {
-                return false;
+                return true;
             }
 
             @Override
@@ -55,7 +55,7 @@ public class SimpleHttpServer {
 
             @Override
             public String getLogTag() {
-                return null;
+                return "TestHTTPServer";
             }
         });
 

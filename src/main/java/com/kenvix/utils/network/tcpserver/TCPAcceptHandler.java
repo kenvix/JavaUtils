@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 public final class TCPAcceptHandler<T extends SimpleAbstractServer> implements CompletionHandler<AsynchronousSocketChannel, T>, Logging {
     private ServerEventCallback<T> callback;
     private int readBufferSize = 10000000;
-    private int readTimeout = 5000;
-    private int writeTimeout = 5000;
+    private long readTimeout = 10000L;
+    private long writeTimeout = 5000L;
     private int socketReceiveBufferSize = 4096;
     private int socketSendBufferSize = 4096;
 
@@ -27,21 +27,28 @@ public final class TCPAcceptHandler<T extends SimpleAbstractServer> implements C
         attachment.getChannel().accept(attachment, this);
     }
 
+    public void readMore(AsynchronousSocketChannel socketChannel) {
+        if (socketChannel.isOpen()) {
+            ByteBuffer buffer = ByteBuffer.allocate(readBufferSize);
+            socketChannel.read(buffer, readTimeout, TimeUnit.SECONDS, socketChannel, new TCPReadHandler(buffer, this));
+        }
+    }
+
     @Override
-    public void completed(AsynchronousSocketChannel result, T attachment) {
+    public void completed(AsynchronousSocketChannel socketChannel, T attachment) {
         acceptMore(attachment);
         try {
-            getLogger().finer("Accepted: " + result.getRemoteAddress());
+            getLogger().finer("Accepted: " + socketChannel.getRemoteAddress());
 
-            result.setOption(StandardSocketOptions.SO_RCVBUF, socketReceiveBufferSize);
-            result.setOption(StandardSocketOptions.SO_SNDBUF, socketSendBufferSize);
+            socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, socketReceiveBufferSize);
+            socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, socketSendBufferSize);
 
-            if(callback.onAcceptCompleted(this, result, attachment)) {
+            if(callback.onAcceptCompleted(this, socketChannel, attachment)) {
                 ByteBuffer buffer = ByteBuffer.allocate(readBufferSize);
-                result.read(buffer, readTimeout, TimeUnit.MILLISECONDS, result, new TCPReadHandler(buffer, this));
+                readMore(socketChannel);
             } else {
                 try {
-                    result.close();
+                    socketChannel.close();
                     getLogger().fine("Successfully reset connection");
                 } catch (IOException e) {
                     getLogger().info("Connection positive reset failed (accept stage): " + e.getMessage());
@@ -55,7 +62,7 @@ public final class TCPAcceptHandler<T extends SimpleAbstractServer> implements C
     @Override
     public void failed(Throwable exc, T attachment) {
         acceptMore(attachment);
-        getLogger().warning("Accept Failed" + exc.getMessage());
+        getLogger().warning("Accept Failed" + exc.toString());
 
         if (callback != null)
             callback.onAcceptFailed(this, exc, attachment);
@@ -97,7 +104,7 @@ public final class TCPAcceptHandler<T extends SimpleAbstractServer> implements C
         this.callback = event;
     }
 
-    public int getWriteTimeout() {
+    public long getWriteTimeout() {
         return writeTimeout;
     }
 
