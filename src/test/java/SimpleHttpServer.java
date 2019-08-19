@@ -5,38 +5,57 @@
 //--------------------------------------------------
 
 import com.kenvix.utils.network.http.HTTPResponseUtils;
-import com.kenvix.utils.network.http.server.ServerEventCallback;
-import com.kenvix.utils.network.http.server.SimpleAsyncHTTPServer;
-import com.kenvix.utils.network.http.server.TCPAcceptHandler;
+import com.kenvix.utils.network.tcpserver.*;
+import com.kenvix.utils.network.http.SimpleAsyncHTTPServerSimple;
 import com.kenvix.utils.tools.BlockingTools;
-import com.kenvix.utils.tools.CommonTools;
-import jdk.nashorn.internal.ir.Block;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 
 public class SimpleHttpServer {
     public static void main(String[] args) {
-        SimpleAsyncHTTPServer server = new SimpleAsyncHTTPServer(new ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer>() {
+        SimpleAsyncHTTPServerSimple server = new SimpleAsyncHTTPServerSimple(new ServerEventCallback<SimpleAbstractServer>() {
             @Override
-            public String onReadComplete(TCPAcceptHandler acceptHandler, ByteBuffer data, Integer readResultCode, AsynchronousSocketChannel socketChannel) {
+            public @Nullable String onReadCompleted(@NotNull TCPReadHandler readHandler, @NotNull ByteBuffer data, Integer readResultCode, @NotNull AsynchronousSocketChannel socketChannel) {
                 HTTPResponseUtils responseUtils = new HTTPResponseUtils(data);
                 return responseUtils.constructResponse(200).constructData("ok").toString();
             }
 
             @Override
-            public void onReadFailed(TCPAcceptHandler acceptHandler, Throwable exc, AsynchronousSocketChannel socketChannel) {
+            public void onReadFailed(@NotNull TCPReadHandler readHandler, @NotNull Throwable exc, @NotNull AsynchronousSocketChannel socketChannel) {
 
             }
 
             @Override
-            public boolean onAcceptComplete(TCPAcceptHandler acceptHandler, AsynchronousSocketChannel socketChannel, SimpleAsyncHTTPServer baseServer) {
-                return true;
+            public void onSendCompleted(@NotNull TCPWriteHandler sendHandler, Integer readResultCode, @NotNull AsynchronousSocketChannel socketChannel) {
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
-            public void onAcceptFailed(TCPAcceptHandler acceptHandler, Throwable throwable, SimpleAsyncHTTPServer baseServer) {
+            public void onSendFailed(@NotNull TCPWriteHandler sendHandler, @NotNull Throwable exc, @NotNull AsynchronousSocketChannel socketChannel) {
 
+            }
+
+            @Override
+            public boolean onAcceptCompleted(@NotNull TCPAcceptHandler acceptHandler, @NotNull AsynchronousSocketChannel socketChannel, @Nullable SimpleAbstractServer baseServer) {
+                return false;
+            }
+
+            @Override
+            public void onAcceptFailed(@NotNull TCPAcceptHandler acceptHandler, @NotNull Throwable throwable, @Nullable SimpleAbstractServer baseServer) {
+
+            }
+
+            @Override
+            public String getLogTag() {
+                return null;
             }
         });
 

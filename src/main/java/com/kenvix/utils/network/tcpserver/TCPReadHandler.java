@@ -4,18 +4,17 @@
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
-package com.kenvix.utils.network.http.server;
+package com.kenvix.utils.network.tcpserver;
 
 import com.kenvix.utils.log.Logging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
-public class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, Logging {
+public final class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSocketChannel>, Logging {
     private ByteBuffer buffer;
     private final TCPAcceptHandler acceptHandler;
 
@@ -32,17 +31,14 @@ public class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSo
             getLogger().info("Empty data");
         } else {
             buffer.flip();
-            String outDataBuilder = acceptHandler.getCallback().onReadComplete(acceptHandler, buffer, result, attachment);
+            String outDataBuilder = acceptHandler.getCallback().onReadCompleted(this, buffer, result, attachment);
+            ByteBuffer outBuffer = null;
 
             if (outDataBuilder != null) {
-                ByteBuffer outBuffer = ByteBuffer.wrap(outDataBuilder.getBytes());
-                attachment.write(outBuffer);
-            }
-
-            try {
-                attachment.close();
-            } catch (IOException e) {
-                getLogger().info("Connection close failed (read stage): " + e.getMessage());
+                byte[] bytes = outDataBuilder.getBytes();
+                outBuffer = ByteBuffer.wrap(bytes);
+                attachment.write(outBuffer, acceptHandler.getWriteTimeout(), TimeUnit.MILLISECONDS,
+                        attachment, new TCPWriteHandler(this));
             }
         }
     }
@@ -50,12 +46,16 @@ public class TCPReadHandler implements CompletionHandler<Integer, AsynchronousSo
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
         getLogger().warning("Read Failed" + exc.getMessage());
-        acceptHandler.getCallback().onReadFailed(acceptHandler, exc, attachment);
+        acceptHandler.getCallback().onReadFailed(this, exc, attachment);
     }
 
     @Override
     public String getLogTag() {
         return acceptHandler.getLogTag();
+    }
+
+    public TCPAcceptHandler getAcceptHandler() {
+        return acceptHandler;
     }
 }
 

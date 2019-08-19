@@ -4,7 +4,7 @@
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
-package com.kenvix.utils.network.http.server;
+package com.kenvix.utils.network.tcpserver;
 
 import com.kenvix.utils.log.Logging;
 
@@ -15,37 +15,20 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.TimeUnit;
 
-public class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, SimpleAsyncHTTPServer>, Logging {
-    private ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> callback;
+public final class TCPAcceptHandler<T extends SimpleAbstractServer> implements CompletionHandler<AsynchronousSocketChannel, T>, Logging {
+    private ServerEventCallback<T> callback;
     private int readBufferSize = 10000000;
-    private int timeout = 5000;
+    private int readTimeout = 5000;
+    private int writeTimeout = 5000;
     private int socketReceiveBufferSize = 4096;
     private int socketSendBufferSize = 4096;
 
-    public ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> getCallback() {
-        return callback;
-    }
-
-    public TCPAcceptHandler setReadBufferSize(int readBufferSize) {
-        this.readBufferSize = readBufferSize;
-        return this;
-    }
-
-    public TCPAcceptHandler setTimeout(int timeout) {
-        this.timeout = timeout;
-        return this;
-    }
-
-    public TCPAcceptHandler(ServerEventCallback<TCPAcceptHandler, SimpleAsyncHTTPServer> event) {
-        this.callback = event;
-    }
-
-    private void acceptMore(SimpleAsyncHTTPServer attachment) {
+    private void acceptMore(T attachment) {
         attachment.getChannel().accept(attachment, this);
     }
 
     @Override
-    public void completed(AsynchronousSocketChannel result, SimpleAsyncHTTPServer attachment) {
+    public void completed(AsynchronousSocketChannel result, T attachment) {
         acceptMore(attachment);
         try {
             getLogger().finer("Accepted: " + result.getRemoteAddress());
@@ -53,9 +36,9 @@ public class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketCha
             result.setOption(StandardSocketOptions.SO_RCVBUF, socketReceiveBufferSize);
             result.setOption(StandardSocketOptions.SO_SNDBUF, socketSendBufferSize);
 
-            if(callback.onAcceptComplete(this, result, attachment)) {
+            if(callback.onAcceptCompleted(this, result, attachment)) {
                 ByteBuffer buffer = ByteBuffer.allocate(readBufferSize);
-                result.read(buffer, timeout, TimeUnit.MINUTES, result, new TCPReadHandler(buffer, this));
+                result.read(buffer, readTimeout, TimeUnit.MILLISECONDS, result, new TCPReadHandler(buffer, this));
             } else {
                 try {
                     result.close();
@@ -70,7 +53,7 @@ public class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketCha
     }
 
     @Override
-    public void failed(Throwable exc, SimpleAsyncHTTPServer attachment) {
+    public void failed(Throwable exc, T attachment) {
         acceptMore(attachment);
         getLogger().warning("Accept Failed" + exc.getMessage());
 
@@ -96,8 +79,35 @@ public class TCPAcceptHandler implements CompletionHandler<AsynchronousSocketCha
         return this;
     }
 
+    public ServerEventCallback<T> getCallback() {
+        return callback;
+    }
+
+    public TCPAcceptHandler setReadBufferSize(int readBufferSize) {
+        this.readBufferSize = readBufferSize;
+        return this;
+    }
+
+    public TCPAcceptHandler setReadTimeout(int readTimeout) {
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
+    public TCPAcceptHandler(ServerEventCallback<T> event) {
+        this.callback = event;
+    }
+
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    public TCPAcceptHandler<T> setWriteTimeout(int writeTimeout) {
+        this.writeTimeout = writeTimeout;
+        return this;
+    }
+
     @Override
     public String getLogTag() {
-        return "SimpleHTTPServer";
+        return callback.getLogTag();
     }
 }

@@ -10,6 +10,7 @@ import com.kenvix.utils.network.URI;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class HTTPResponseUtils {
@@ -19,7 +20,7 @@ public class HTTPResponseUtils {
         this.originalRequestText = originalRequestText;
     }
     public HTTPResponseUtils(ByteBuffer originalRequestBuffer) {
-        this.originalRequestText = Charset.forName("utf-8").decode(originalRequestBuffer).toString();
+        this.originalRequestText = StandardCharsets.UTF_8.decode(originalRequestBuffer).toString();
     }
 
     public HTTPResponseUtils(ByteBuffer originalRequestBuffer, String encoding) {
