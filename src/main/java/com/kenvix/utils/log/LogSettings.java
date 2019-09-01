@@ -21,29 +21,34 @@ public final class LogSettings {
     private static Map<String, Logger> allocatedLoggers = new HashMap<>();
     private static Map<String, String> simplifiedSourceClassNameMap = new HashMap<>();
     private static Set<Handler> handlers = new HashSet<>();
-    private static ConsoleHandler consoleHandler = new ConsoleHandler() {{
-        this.setFormatter(formatter);
-    }};
+    private static ConsoleHandler consoleHandler;
     private static boolean useConsoleHandler = true;
-    private static java.util.logging.Formatter formatter = new Formatter() {
-        @Override
-        public String format(LogRecord record) {
-            return String.format("[%s][%s][%s][%s=>%s] %s\n",
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.CHINA).format(new Date(record.getMillis())),
-                    record.getLoggerName(),
-                    record.getLevel().toString(),
-                    getSimplifiedSourceClassName(record.getSourceClassName()),
-                    record.getSourceMethodName(),
-                    record.getMessage()
-            );
-        }
-    };
+    private static java.util.logging.Formatter formatter;
     private static java.util.logging.Level level = Level.ALL;
 
     /**
      * No instances
      */
     private LogSettings() {
+    }
+
+    static {
+        formatter = new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return String.format("[%s][%s][%s][%s=>%s] %s\n",
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.CHINA).format(new Date(record.getMillis())),
+                        record.getLoggerName(),
+                        record.getLevel().toString(),
+                        getSimplifiedSourceClassName(record.getSourceClassName()),
+                        record.getSourceMethodName(),
+                        record.getMessage()
+                );
+            }
+        };
+
+        consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(formatter);
     }
 
     public static String getSimplifiedSourceClassName(String sourceClassName) {
@@ -138,7 +143,7 @@ public final class LogSettings {
         return logger;
     }
 
-    public static void setAsDefaultLogger(boolean asDefault) {
+    public static void setAsDefaultLogger() {
         initLogger(getLogger(""));
     }
 
