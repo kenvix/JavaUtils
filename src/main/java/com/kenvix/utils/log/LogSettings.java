@@ -13,21 +13,18 @@ import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.*;
+import java.util.logging.Formatter;
 
 public final class LogSettings {
-    private static Map<String, Logger> loggerCache = new HashMap<>();
+    private static Map<String, Logger> allocatedLoggers = new HashMap<>();
     private static Map<String, String> simplifiedSourceClassNameMap = new HashMap<>();
-
-    /**
-     * No instances
-     */
-    private LogSettings() {}
-
+    private static Set<Handler> handlers = new HashSet<>();
+    private static ConsoleHandler consoleHandler = new ConsoleHandler() {{
+        this.setFormatter(formatter);
+    }};
+    private static boolean useConsoleHandler = true;
     private static java.util.logging.Formatter formatter = new Formatter() {
         @Override
         public String format(LogRecord record) {
@@ -43,16 +40,10 @@ public final class LogSettings {
     };
     private static java.util.logging.Level level = Level.ALL;
 
-    public static Level getLevel() {
-        return level;
-    }
-
-    public static void setLevel(Level level) {
-        LogSettings.level = level;
-    }
-
-    public static Formatter getFormatter() {
-        return formatter;
+    /**
+     * No instances
+     */
+    private LogSettings() {
     }
 
     public static String getSimplifiedSourceClassName(String sourceClassName) {
@@ -78,18 +69,14 @@ public final class LogSettings {
         return result;
     }
 
-    public static void setFormatter(Formatter formatter) {
-        LogSettings.formatter = formatter;
-    }
-
     public static void initLogger(Logger logger) {
-        Handler consoleHandler = new ConsoleHandler();
-        consoleHandler.setFormatter(formatter);
-
         logger.setLevel(level);
-        consoleHandler.setLevel(level);
         logger.setUseParentHandlers(false);
-        logger.addHandler(consoleHandler);
+
+        if (useConsoleHandler) {
+            consoleHandler.setLevel(level);
+            logger.addHandler(consoleHandler);
+        }
     }
 
     public static Logger getGlobal() {
@@ -97,19 +84,29 @@ public final class LogSettings {
     }
 
     public static Logger getLogger(String tag) {
-        Logger logger = loggerCache.get(tag);
+        Logger logger = allocatedLoggers.get(tag);
 
         if (logger == null) {
             logger = Logger.getLogger(tag);
             initLogger(logger);
 
-            loggerCache.put(tag, logger);
+            allocatedLoggers.put(tag, logger);
         }
 
         return logger;
     }
 
-    public static void replaceLogger(Object target, @NotNull String fieldName, @NotNull Logger logger) throws NoSuchFieldException {
+    /**
+     * Inject logger
+     *
+     * @param target
+     * @param fieldName
+     * @param logger
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    public static void replaceLogger(Object target, @NotNull String fieldName, @NotNull Logger logger)
+            throws NoSuchFieldException, IllegalAccessException {
         Field field;
 
         if (target instanceof Class)
@@ -119,29 +116,87 @@ public final class LogSettings {
 
         Field modifiersField = Field.class.getDeclaredField("modifiers");
 
-        try {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                field.setAccessible(true);
-                modifiersField.setAccessible(true);
-                return null;
-            });
+        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            field.setAccessible(true);
+            modifiersField.setAccessible(true);
+            return null;
+        });
 
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-            if ((field.getModifiers() & Modifier.STATIC) > 0)
-                field.set(null, logger);
-            else
-                field.set(target, logger);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        if ((field.getModifiers() & Modifier.STATIC) > 0)
+            field.set(null, logger);
+        else
+            field.set(target, logger);
     }
 
-    public static Logger replaceLogger(Object target, @NotNull String fieldName, @NotNull String loggerTag) throws NoSuchFieldException {
+    public static Logger replaceLogger(Object target, @NotNull String fieldName, @NotNull String loggerTag)
+            throws NoSuchFieldException, IllegalAccessException {
         Logger logger = getLogger(loggerTag);
         replaceLogger(target, fieldName, logger);
 
         return logger;
+    }
+
+    public static void setAsDefaultLogger(boolean asDefault) {
+        initLogger(getLogger(""));
+    }
+
+    public static synchronized boolean isUseConsoleHandler() {
+        return useConsoleHandler;
+    }
+
+    public static synchronized void setUseConsoleHandler(boolean useConsoleHandler) {
+        if (LogSettings.useConsoleHandler ^ useConsoleHandler) {
+            LogSettings.useConsoleHandler = useConsoleHandler;
+
+            allocatedLoggers.forEach((key, value) -> {
+                if (useConsoleHandler)
+                    value.addHandler(consoleHandler);
+                else
+                    value.removeHandler(consoleHandler);
+            });
+        }
+    }
+
+    public static synchronized Set<Handler> getHandlers() {
+        return handlers;
+    }
+
+    public static synchronized void addHandler(Handler handler) {
+        if (!handlers.contains(handler)) {
+            handlers.add(handler);
+
+            allocatedLoggers.forEach((key, value) -> {
+                value.addHandler(handler);
+            });
+        }
+    }
+
+    public static synchronized void removeHandler(Handler handler) {
+        if (handlers.contains(handler)) {
+            handlers.remove(handler);
+
+            allocatedLoggers.forEach((key, value) -> {
+                value.removeHandler(handler);
+            });
+        }
+    }
+
+    public static synchronized Formatter getFormatter() {
+        return formatter;
+    }
+
+    public static synchronized void setFormatter(Formatter formatter) {
+        LogSettings.formatter = formatter;
+    }
+
+    public static Level getLevel() {
+        return level;
+    }
+
+    public static void setLevel(Level level) {
+        LogSettings.level = level;
     }
 }
 

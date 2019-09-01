@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
 }
 
 group 'com.kenvix'
@@ -13,6 +14,7 @@ repositories {
 
 dependencies {
     compile group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 jar {
@@ -24,4 +26,19 @@ jar {
     manifest {
 
     }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileJava {
+    options.encoding("utf-8")
 }

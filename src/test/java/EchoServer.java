@@ -31,7 +31,7 @@ public class EchoServer {
             public @Nullable String onReadCompleted(@NotNull TCPReadHandler readHandler, @NotNull ByteBuffer data, Integer readResultCode, @NotNull AsynchronousSocketChannel socketChannel) {
                 String received = StandardCharsets.UTF_8.decode(data).toString();
                 getLogger().finest("Received: "+ received);
-                return received;
+                return received + "\r\n";
             }
 
             @Override
