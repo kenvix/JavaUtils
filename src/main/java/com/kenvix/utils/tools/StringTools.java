@@ -8,7 +8,27 @@ package com.kenvix.utils.tools;
 
 import java.util.Locale;
 
-public abstract class StringTools {
+public final class StringTools {
+    private StringTools() {}
+
+    public static String getShortPackageName(String sourceClassName) {
+        StringBuilder builder = new StringBuilder(sourceClassName);
+
+        if (sourceClassName.contains(".")) {
+            int beginPosition = 0;
+            int nextPosition = 0;
+
+            do {
+                nextPosition = builder.indexOf(".", beginPosition + 1);
+                int deletedLength = nextPosition - beginPosition - 1;
+                builder.delete(beginPosition + 1, nextPosition);
+                beginPosition = nextPosition - deletedLength + 1;
+            } while ((nextPosition = builder.indexOf(".", beginPosition + 1)) >= 0);
+        }
+
+        return builder.toString();
+    }
+
     /**
      * 通配符算法。 可以匹配"*"和"?"
      * 如a*b?d可以匹配aAAAbcd

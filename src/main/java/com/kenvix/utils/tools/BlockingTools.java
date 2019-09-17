@@ -6,7 +6,9 @@
 
 package com.kenvix.utils.tools;
 
-public class BlockingTools {
+public final class BlockingTools {
+    private BlockingTools() {}
+
     private final Object interruptLock = new Object();
     private boolean isBlocked = false;
 

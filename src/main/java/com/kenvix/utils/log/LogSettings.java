@@ -6,8 +6,12 @@
 
 package com.kenvix.utils.log;
 
+import com.kenvix.utils.tools.ReflectTools;
+import com.kenvix.utils.tools.StringTools;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
@@ -36,13 +40,27 @@ public final class LogSettings {
         formatter = new Formatter() {
             @Override
             public String format(LogRecord record) {
-                return String.format("[%s][%s][%s][%s=>%s] %s\n",
-                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.CHINA).format(new Date(record.getMillis())),
+                String thrown = "";
+
+                if (record.getThrown() != null) {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    PrintStream stackTraceBuffer = new PrintStream(byteArrayOutputStream);
+                    stackTraceBuffer.print(" [With thrown: ");
+                    stackTraceBuffer.print(record.getThrown().getClass().getName());
+                    stackTraceBuffer.print("] \n");
+                    record.getThrown().printStackTrace(stackTraceBuffer);
+                    thrown = byteArrayOutputStream.toString();
+                }
+
+                return String.format("[%s][%s/%s][%s][%s=>%s] %s%s\n",
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA).format(new Date(record.getMillis())),
                         record.getLoggerName(),
+                        record.getThreadID(),
                         record.getLevel().toString(),
                         getSimplifiedSourceClassName(record.getSourceClassName()),
                         record.getSourceMethodName(),
-                        record.getMessage()
+                        record.getMessage(),
+                        thrown
                 );
             }
         };
@@ -55,21 +73,7 @@ public final class LogSettings {
         if (simplifiedSourceClassNameMap.containsKey(sourceClassName))
             return simplifiedSourceClassNameMap.get(sourceClassName);
 
-        StringBuilder builder = new StringBuilder(sourceClassName);
-
-        if (sourceClassName.contains(".")) {
-            int beginPosition = 0;
-            int nextPosition = 0;
-
-            do {
-                nextPosition = builder.indexOf(".", beginPosition + 1);
-                int deletedLength = nextPosition - beginPosition - 1;
-                builder.delete(beginPosition + 1, nextPosition);
-                beginPosition = nextPosition - deletedLength + 1;
-            } while ((nextPosition = builder.indexOf(".", beginPosition + 1)) >= 0);
-        }
-
-        String result = builder.toString();
+        String result = StringTools.getShortPackageName(sourceClassName);
         simplifiedSourceClassNameMap.put(sourceClassName, result);
         return result;
     }
@@ -112,27 +116,7 @@ public final class LogSettings {
      */
     public static void replaceLogger(Object target, @NotNull String fieldName, @NotNull Logger logger)
             throws NoSuchFieldException, IllegalAccessException {
-        Field field;
-
-        if (target instanceof Class)
-            field = ((Class) target).getDeclaredField(fieldName);
-        else
-            field = target.getClass().getDeclaredField(fieldName);
-
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-
-        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-            field.setAccessible(true);
-            modifiersField.setAccessible(true);
-            return null;
-        });
-
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-        if ((field.getModifiers() & Modifier.STATIC) > 0)
-            field.set(null, logger);
-        else
-            field.set(target, logger);
+        ReflectTools.replaceField(target, fieldName, logger);
     }
 
     public static Logger replaceLogger(Object target, @NotNull String fieldName, @NotNull String loggerTag)
