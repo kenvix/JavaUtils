@@ -9,6 +9,7 @@ package com.kenvix.utils.log;
 import com.kenvix.utils.tools.ReflectTools;
 import com.kenvix.utils.tools.StringTools;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -79,6 +80,13 @@ public final class LogSettings {
     }
 
     public static void initLogger(Logger logger) {
+        initLogger(logger, level);
+    }
+
+    public static void initLogger(Logger logger, @Nullable Level level) {
+        if (level == null)
+            level = LogSettings.level;
+
         logger.setLevel(level);
         logger.setUseParentHandlers(false);
 
@@ -86,6 +94,8 @@ public final class LogSettings {
             consoleHandler.setLevel(level);
             logger.addHandler(consoleHandler);
         }
+
+        handlers.forEach(logger::addHandler);
     }
 
     public static Logger getGlobal() {
@@ -93,16 +103,24 @@ public final class LogSettings {
     }
 
     public static Logger getLogger(String tag) {
+        return getLogger(tag, level);
+    }
+
+    public static Logger getLogger(String tag, @Nullable Level level) {
         Logger logger = allocatedLoggers.get(tag);
 
         if (logger == null) {
-            logger = Logger.getLogger(tag);
-            initLogger(logger);
+            logger = Logger.getLogger(getLoggerName(tag));
+            initLogger(logger, level);
 
             allocatedLoggers.put(tag, logger);
         }
 
         return logger;
+    }
+
+    public static String getLoggerName(String tag) {
+        return tag;
     }
 
     /**

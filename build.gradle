@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
