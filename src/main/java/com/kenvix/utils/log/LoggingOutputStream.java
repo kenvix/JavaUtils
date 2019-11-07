@@ -6,30 +6,22 @@
 
 package com.kenvix.utils.log;
 
+import com.kenvix.utils.lang.StringOutputStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class LoggingOutputStream extends OutputStream implements AutoCloseable {
+public final class LoggingOutputStream extends OutputStream implements AutoCloseable, Consumer<String> {
     private Logger logger;
     private Level level;
-    private char separator;
-    private int count;
-    private byte[] bytes;
+    private StringOutputStream stream;
 
     @Override
     public void write(int b) {
-        if (separator != '\0' && b == separator) {
-            flush();
-        } else {
-            if (count + 1 == bytes.length)
-                flush();
-
-            bytes[count] = (byte) b;
-            count++;
-        }
+        stream.write(b);
     }
 
     @Override
@@ -40,12 +32,7 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
 
     @Override
     public void flush() {
-        if (count > 0) {
-            String str = toString();
-            count = 0;
-
-            logger.log(level, str);
-        }
+        stream.flush();
     }
 
     @Override
@@ -56,9 +43,7 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
     public LoggingOutputStream(@NotNull Logger logger, Level level, char separator, int bufferSize) {
         this.logger = logger;
         this.level = level;
-        this.separator = separator;
-
-        bytes = new byte[bufferSize];
+        stream = new StringOutputStream(this, separator, bufferSize);
     }
 
     public LoggingOutputStream(@NotNull Logger logger, Level level) {
@@ -74,7 +59,7 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
     }
 
     public int getCount() {
-        return count;
+        return stream.getCount();
     }
 
     /**
@@ -83,6 +68,11 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
      */
     @Override
     public String toString() {
-        return count <= 0 ? "" : new String(bytes, 0, bytes[count - 1] == '\r' ? count - 1 : count);
+        return stream.toString();
+    }
+
+    @Override
+    public void accept(String s) {
+        logger.log(level, s);
     }
 }
