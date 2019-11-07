@@ -1,7 +1,10 @@
 package com.kenvix.utils.tools;
 
+import java.util.Timer;
+
 public final class CommonTools {
     private CommonTools() {}
+    private static Timer globalTimer = null;
 
     /**
      * Sleep
@@ -15,5 +18,14 @@ public final class CommonTools {
         } catch (Exception ex) {
             return false;
         }
+    }
+
+
+    /**
+     * Get global timer
+     * @return Timer
+     */
+    public static Timer getGlobalTimer() {
+        return globalTimer == null ? globalTimer = new Timer() : globalTimer;
     }
 }
