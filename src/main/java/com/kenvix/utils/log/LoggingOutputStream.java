@@ -41,7 +41,7 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
     @Override
     public void flush() {
         if (count > 0) {
-            String str = new String(bytes, 0, bytes[count - 1] == '\r' ? count - 1 : count);
+            String str = toString();
             count = 0;
 
             logger.log(level, str);
@@ -77,8 +77,12 @@ public final class LoggingOutputStream extends OutputStream implements AutoClose
         return count;
     }
 
+    /**
+     * Return current current buffer data as string
+     * @return String data
+     */
     @Override
     public String toString() {
-        return "LoggingOutputStream for logger ${logger.name}";
+        return count <= 0 ? "" : new String(bytes, 0, bytes[count - 1] == '\r' ? count - 1 : count);
     }
 }
