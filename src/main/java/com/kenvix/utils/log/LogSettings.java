@@ -54,10 +54,11 @@ public final class LogSettings {
                 }
 
                 return String.format("[%s][%s/%s][%s][%s=>%s] %s%s\n",
-                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA).format(new Date(record.getMillis())),
-                        record.getLoggerName(),
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA)
+                                        .format(new Date(record.getMillis())),
+                        getColoredString(record.getLoggerName(), record.getLevel()),
                         record.getThreadID(),
-                        record.getLevel().toString(),
+                        getColoredString(record.getLevel().toString(), record.getLevel()),
                         getSimplifiedSourceClassName(record.getSourceClassName()),
                         record.getSourceMethodName(),
                         record.getMessage(),
@@ -68,6 +69,28 @@ public final class LogSettings {
 
         consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(formatter);
+    }
+
+    public static String getColoredString(String str, Level level) {
+        if (level == Level.FINER || level == Level.FINEST)
+            return "\033[32m" + str + "\033[0m";
+
+        else if (level == Level.FINE)
+            return "\033[1;32m" + str + "\033[0m";
+
+        else if (level == Level.INFO)
+            return "\033[1;36m" + str + "\033[0m";
+
+        else if (level == Level.WARNING)
+            return "\033[1;33m" + str + "\033[0m";
+
+        else if (level == Level.SEVERE)
+            return "\033[1;31m" + str + "\033[0m";
+
+        else if (level == Level.CONFIG)
+            return "\033[35m" + str + "\033[0m";
+        else
+            return str;
     }
 
     public static String getSimplifiedSourceClassName(String sourceClassName) {
