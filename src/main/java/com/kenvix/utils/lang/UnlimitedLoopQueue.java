@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "unused"})
 public class UnlimitedLoopQueue<E> implements Queue<E>, Cloneable, Serializable {
     @Nullable
     transient final private Object[] container;

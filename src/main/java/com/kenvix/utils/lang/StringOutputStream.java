@@ -20,9 +20,10 @@ import java.util.function.Consumer;
  *
  * Thread Unsafe.
  */
+@SuppressWarnings("unused")
 public class StringOutputStream extends OutputStream implements AutoCloseable {
-    private Consumer<String> callback;
-    private char separator;
+    private final Consumer<String> callback;
+    private final char separator;
     private int count;
     private byte[] bytes;
 

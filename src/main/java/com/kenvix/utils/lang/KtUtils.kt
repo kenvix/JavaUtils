@@ -1,4 +1,5 @@
 @file:JvmName("KtUtils")
+@file:Suppress("unused")
 
 package com.kenvix.utils.lang
 
