@@ -10,3 +10,5 @@ desktop.ini
 generator_config.json
 Launcher.jar
 .idea/workspace.xml
+cpp/.vs
+cpp/Debug
