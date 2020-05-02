@@ -6,12 +6,9 @@
 
 package com.kenvix.utils.event
 
-interface EventContainer<E> {
+interface EventContainer<E> : Collection<EventHandler<E>> {
     operator fun plusAssign(handler: EventHandler<E>)
     operator fun minusAssign(handler: EventHandler<E>)
 
     operator fun invoke(data: E)
-    operator fun contains(handler: EventHandler<E>): Boolean
-    fun clear()
-    fun count(): Int
 }

@@ -6,7 +6,7 @@
 
 package com.kenvix.utils.event
 
-open class EventSet<E> : HashSet<EventHandler<E>>(), EventContainer<E> {
+class EventList<E>(initSize: Int = 10) : ArrayList<EventHandler<E>>(initSize), EventContainer<E> {
     override fun plusAssign(handler: EventHandler<E>) {
         add(handler)
     }
