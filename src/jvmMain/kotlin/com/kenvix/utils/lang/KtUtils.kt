@@ -9,7 +9,7 @@ val <T> T.weakReference
     get() = WeakRef(this)
 
 @Suppress("NOTHING_TO_INLINE")
-actual inline fun Any?.toUnit() = Unit
+inline fun Any?.toUnit() = Unit
 
 fun Serializable.serializeToBytes(): ByteArray {
     return ByteArrayOutputStream().use { bytes ->

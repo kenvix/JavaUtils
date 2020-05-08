@@ -6,6 +6,7 @@ val logback_version: String by project
 plugins {
     java
     kotlin("multiplatform") version "1.3.72"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 this.group = "com.kenvix"
@@ -36,10 +37,13 @@ kotlin {
         // 仅用于 JVM 的源码及其依赖的默认源集
         jvm().compilations["main"].defaultSourceSet {
             dependencies {
-                implementation("org.slf4j:slf4j-api:1.7.30")
+                compileOnly("org.slf4j:slf4j-api:1.7.30")
+                compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+
                 implementation(kotlin("stdlib-jdk8"))
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+
+                compileOnly("io.github.cdimascio:java-dotenv:5.1.4")
             }
         }
         // 仅用于 JVM 的测试及其依赖
