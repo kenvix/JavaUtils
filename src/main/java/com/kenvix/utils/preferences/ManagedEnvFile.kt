@@ -55,7 +55,12 @@ open class ManagedEnvFile(dirPath: Path = Paths.get(".")) : Iterable<Map.Entry<S
             PrintStream(stream).use { printStream ->
                 memberIter.forEach {
                     if (it.visibility != KVisibility.PRIVATE) {
-                        val value = it.getter.call(this)
+                        val value = it.getter.call(this).run {
+                            if (this is String)
+                                "\"$this\""
+                            else
+                                this?.toString() ?: ""
+                        }
                         val typeName = it.getter.returnType.javaType.typeName.run {
                             val index = lastIndexOf('.')
                             if (index < 0)
@@ -65,8 +70,8 @@ open class ManagedEnvFile(dirPath: Path = Paths.get(".")) : Iterable<Map.Entry<S
                         }
                         val description = it.findAnnotation<Description>()?.message
 
-                        printStream.printf("# %-7s %s  %s\n", typeName, it.name, description ?: "")
-                        printStream.println("${it.name}=${value ?: ""}")
+                        printStream.printf("# %-7s %s\n", typeName, description ?: it.name)
+                        printStream.println("${it.name}=${value}")
                     }
                 }
             }
