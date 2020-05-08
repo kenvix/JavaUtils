@@ -5,12 +5,13 @@ val logback_version: String by project
 
 plugins {
     java
-    kotlin("multiplatform") version "1.3.72"
+    kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 this.group = "com.kenvix"
 this.version = "2.0"
+val archivesBaseName = "kenvix-utils"
 
 repositories {
     mavenLocal()
@@ -18,54 +19,31 @@ repositories {
     google()
 }
 
-kotlin {
-    jvm()
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
-
-        // 仅用于 JVM 的源码及其依赖的默认源集
-        jvm().compilations["main"].defaultSourceSet {
-            dependencies {
-                compileOnly("org.slf4j:slf4j-api:1.7.30")
-                compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
-
-                implementation(kotlin("stdlib-jdk8"))
-                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-
-                compileOnly("io.github.cdimascio:java-dotenv:5.1.4")
-            }
-        }
-        // 仅用于 JVM 的测试及其依赖
-        jvm().compilations["test"].defaultSourceSet {
-            dependencies {
-                implementation(kotlin("test-junit"))
-            }
-        }
-    }
-}
-
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    compileOnly("org.slf4j:slf4j-api:1.7.30")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+
+    compileOnly(kotlin("stdlib-jdk8"))
+    compileOnly("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+
+    compileOnly("io.github.cdimascio:java-dotenv:5.1.4")
 }
 
 tasks {
     withType<AbstractCompile> {
         sourceCompatibility = "1.8"
+    }
+
+    withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+        archiveBaseName.set(archivesBaseName)
+        archiveVersion.set(this@Build_gradle.version.toString())
+
+        destinationDirectory.set(file("${buildDir}/output"))
+        isZip64 = true
     }
 
     withType<KotlinCompile> {

@@ -16,7 +16,7 @@ public final class ReflectTools {
     public static String getMethodDescription(Method method) {
         if(!method.isAnnotationPresent(Description.class))
             throw new NoSuchElementException("No Description found.");
-        return method.getAnnotation(Description.class).value();
+        return method.getAnnotation(Description.class).message();
     }
 
     public static String getMethodDescription(String className, String methodName) throws ClassNotFoundException, NoSuchMethodException {
