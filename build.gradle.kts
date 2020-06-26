@@ -25,7 +25,8 @@ configure<JavaPluginConvention> {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:1.7.30")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.7")
 
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")

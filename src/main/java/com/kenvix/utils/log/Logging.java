@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public interface Logging {
     default Logger getLogger() {
-        if (getLogTag() == null)
+        if (getLogTag() != null)
             return getLogger(getLogTag());
         else
             return getLogger(this.getClass());
