@@ -15,6 +15,7 @@ import java.io.PrintStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation

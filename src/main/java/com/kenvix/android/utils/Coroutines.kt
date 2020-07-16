@@ -13,30 +13,44 @@ import java.util.function.Function
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 
-class Coroutines : AutoCloseable {
+class Coroutines @JvmOverloads constructor(val name: CoroutineName? = null) : AutoCloseable {
     /**
      * 获取默认 Kotlin Coroutine Job (线程不安全)
      * @return CompletableJob
      */
-    val defaultJob = Job()
+    val defaultJob = Job().let { if (name != null) it + name else it }
+
+    constructor(clazz: Class<*>): this(CoroutineName(clazz.name))
+    constructor(name: String): this(CoroutineName(name))
+    val nameOrFail get() = name!!
 
     /**
      * 获取默认 Kotlin Coroutine Scope (线程不安全)
      * @return CoroutineScope
      */
-    val defaultScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) { CoroutineScope(Default + defaultJob) }
+    val defaultScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) {
+        CoroutineScope(Default + defaultJob)
+    }
 
     /**
      * 获取主(UI) Kotlin Coroutine Scope (线程不安全)
      * @return CoroutineScope
      */
-    val mainScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) { CoroutineScope(Main + defaultJob) }
+    val mainScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) {
+        CoroutineScope(Main + defaultJob)
+    }
 
     /**
      * 获取IO Kotlin Coroutine Scope (线程不安全)
      * @return CoroutineScope
      */
-    val ioScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) { CoroutineScope(IO + defaultJob) }
+    val ioScope: CoroutineScope by lazy(LazyThreadSafetyMode.NONE) {
+        CoroutineScope(IO + defaultJob)
+    }
+
+    val io get() = ioScope
+    val main get() = mainScope
+    val default get() = defaultScope
 
     /**
      * 异步运行指定代码（仅用于Java代码）
