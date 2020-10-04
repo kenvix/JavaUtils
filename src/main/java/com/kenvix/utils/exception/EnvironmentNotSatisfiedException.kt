@@ -1,22 +1,15 @@
-package com.kenvix.utils.exception;
+package com.kenvix.utils.exception
 
-public class EnvironmentNotSatisfiedException extends RuntimeException {
-    public EnvironmentNotSatisfiedException() {
-    }
-
-    public EnvironmentNotSatisfiedException(String message) {
-        super(message);
-    }
-
-    public EnvironmentNotSatisfiedException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public EnvironmentNotSatisfiedException(Throwable cause) {
-        super(cause);
-    }
-
-    public EnvironmentNotSatisfiedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+class EnvironmentNotSatisfiedException : RuntimeException {
+    constructor() {}
+    constructor(message: String?) : super(message) {}
+    constructor(message: String?, cause: Throwable?) : super(message, cause) {}
+    constructor(cause: Throwable?) : super(cause) {}
+    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) : super(
+        message,
+        cause,
+        enableSuppression,
+        writableStackTrace
+    ) {
     }
 }

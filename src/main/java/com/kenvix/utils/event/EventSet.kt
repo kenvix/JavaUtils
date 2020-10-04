@@ -14,8 +14,4 @@ open class EventSet<E> : HashSet<EventHandler<E>>(), EventContainer<E> {
     override operator fun minusAssign(handler: EventHandler<E>) {
         remove(handler)
     }
-
-    override operator fun invoke(data: E) {
-        forEach { it(data) }
-    }
 }

@@ -2,10 +2,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kotlin_version: String by project
 val logback_version: String by project
+val kotlinx_coroutines_version: String by project
 
 plugins {
     java
-    kotlin("jvm") version "1.3.72"
+    idea
+    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
@@ -25,11 +27,11 @@ configure<JavaPluginConvention> {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:1.7.30")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.7")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version")
 
     compileOnly(kotlin("stdlib-jdk8"))
-    compileOnly("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    compileOnly(kotlin("reflect"))
 
     compileOnly("io.github.cdimascio:java-dotenv:5.1.4")
 }

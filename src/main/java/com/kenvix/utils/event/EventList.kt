@@ -14,8 +14,4 @@ class EventList<E> constructor(initSize: Int = 10) : ArrayList<EventHandler<E>>(
     override operator fun minusAssign(handler: EventHandler<E>) {
         remove(handler)
     }
-
-    override operator fun invoke(data: E) {
-        forEach { it(data) }
-    }
 }
