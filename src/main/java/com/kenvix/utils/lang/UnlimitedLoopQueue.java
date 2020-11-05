@@ -122,7 +122,7 @@ public class UnlimitedLoopQueue<E> implements Queue<E>, Cloneable, Serializable 
     }
 
     @Contract(value = "null -> fail; !null -> param1", pure = true)
-    private <T> @NotNull T assertElementNotNull(T obj) {
+    private <T> T assertElementNotNull(T obj) {
         if (obj == null)
             throw new NoSuchElementException();
         else
