@@ -7,12 +7,12 @@ val kotlinx_coroutines_version: String by project
 plugins {
     java
     idea
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.7.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
-this.group = "com.kenvix"
-this.version = "2.0"
+group = "com.kenvix"
+version = "2.1"
 val archivesBaseName = "kenvix-utils"
 
 repositories {
@@ -34,27 +34,38 @@ dependencies {
     compileOnly(kotlin("reflect"))
 
     compileOnly("io.github.cdimascio:java-dotenv:5.1.4")
+
+    testImplementation(kotlin("stdlib-jdk8"))
+    testImplementation(kotlin("reflect"))
+    testImplementation("junit:junit:4.13.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version")
 }
 
 tasks {
     withType<AbstractCompile> {
-        sourceCompatibility = "1.8"
+        sourceCompatibility = "11"
     }
 
     withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
         archiveBaseName.set(archivesBaseName)
-        archiveVersion.set(this@Build_gradle.version.toString())
+//        archiveVersion.set(this@Build_gradle.version.toString())
 
         destinationDirectory.set(file("${buildDir}/output"))
         isZip64 = true
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = sourceCompatibility
+        kotlinOptions.jvmTarget = "11"
         kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 
     withType<JavaCompile> {
         options.encoding = "utf-8"
     }
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    freeCompilerArgs = listOf("-Xinline-classes")
 }

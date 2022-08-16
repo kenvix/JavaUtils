@@ -1,6 +1,7 @@
 package com.kenvix.utils.lang
 
 import kotlinx.coroutines.channels.Channel
+import java.io.Closeable
 import java.nio.ByteBuffer
 
 class DirectBufferPool private constructor(
@@ -21,10 +22,11 @@ class DirectBufferPool private constructor(
     suspend fun useBuffer(then: (suspend (ByteBuffer) -> Unit)) {
         val buffer = buffers.receive()
         then(buffer)
+        buffer.clear()
         buffers.send(buffer)
     }
 
-    companion object {
+    companion object Init {
         @JvmStatic
         suspend fun of(size: Int = 1 shl 22, maxNum: Int = 2): DirectBufferPool {
             val channel = Channel<ByteBuffer>(maxNum)
