@@ -4,14 +4,17 @@
 // Written by Kenvix <i@kenvix.com>
 //--------------------------------------------------
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.kenvix.utils.thing
 
 typealias IntMoney = Int
 fun IntMoney.parseIntMoney(): IntMoney = 1234
 fun IntMoney.toString() = "${this / 100}.${this % 100}"
 
+@JvmInline
 @Suppress("MemberVisibilityCanBePrivate")
-inline class LongMoney constructor(val value: Long) {
+value class LongMoney constructor(val value: Long) {
     constructor(moneyString: String): this(parseMoneyToLong(moneyString))
 
     override fun toString(): String {
